@@ -750,6 +750,7 @@
               name: r[2] || "ไม่มีชื่อสินค้า",
               price: r[3] || "สอบถามราคา",
               description: r[4] || "-",
+              priceTable: r[5] || "",
               images: allImgs.length ? allImgs : ["https://placehold.co/600x600/FAD2DF/633D1E?text=No+Image"],
               status: r[7] || ""
             };
@@ -814,7 +815,17 @@
       document.getElementById("modalStatus").textContent = selectedProduct.status ? `• ${selectedProduct.status}` : "";
       document.getElementById("modalTitle").textContent = selectedProduct.name;
       document.getElementById("modalPrice").textContent = selectedProduct.price;
-      document.getElementById("modalDesc").innerHTML = selectedProduct.description;
+      document.getElementById("modalDesc").textContent = selectedProduct.description;
+
+      // เพิ่มส่วนนี้เพื่อแสดงตารางเรทราคาแยกต่างหาก (ถ้ามีข้อมูลในช่องตาราง)
+      let priceTableContainer = document.getElementById("modalPriceTable");
+      if (!priceTableContainer) {
+        // ถ้ายังไม่มีกล่องใส่ตาราง ให้สร้างแท็ก div ต่อท้ายช่องรายละเอียด
+        priceTableContainer = document.createElement("div");
+        priceTableContainer.id = "modalPriceTable";
+        document.getElementById("modalDesc").after(priceTableContainer);
+      }
+      priceTableContainer.innerHTML = selectedProduct.priceTable;
 
       const thumbsContainer = document.getElementById("modalThumbs");
       if (selectedProduct.images.length > 1) {
