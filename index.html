@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product Catalog</title>
+  <title>FPKxRAINNN - Product Catalog</title>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-color: #FFF2F6; /* ปรับพื้นหลังเป็นสีชมพูอ่อน */
+      --bg-color: #FFF2F6;
       --card-bg: #FFFFFF;
       --text-main: #4A3B32;
       --brown-medium: #7F5539;
       --brown-dark: #633D1E;
       --pink-soft: #FDE8EF;
       --pink-accent: #FAD2DF;
-      --border-color: #E6D5B8;
-      --input-bg: #FFF8E7;
+      --pink-dark: #D47A9E; /* สีชมพูเข้มสำหรับปุ่มสั่งซื้อ LINE */
+      --border-color: #633D1E; /* เปลี่ยนขอบทั้งหมดเป็นสีน้ำตาลเข้ม */
+      --input-bg: #FFF2F6; /* เปลี่ยนพื้นหลังช่องรายละเอียดเป็นสีชมพูอ่อน */
     }
 
     * {
@@ -42,14 +43,28 @@
       max-width: 1200px;
     }
 
+    .shop-title-badge {
+      display: inline-block;
+      background: var(--card-bg);
+      color: var(--brown-dark);
+      padding: 8px 24px;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 1.5px solid var(--border-color);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      margin-bottom: 12px;
+    }
+
     h1 {
-      font-size: 1.8rem;
+      font-size: 2.2rem;
       color: var(--brown-dark);
       margin-bottom: 6px;
+      font-weight: 600;
     }
 
     header p {
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       color: var(--brown-medium);
       margin-bottom: 16px;
     }
@@ -59,7 +74,7 @@
       max-width: 400px;
       padding: 12px 18px;
       border-radius: 20px;
-      border: 1px solid var(--border-color);
+      border: 1.5px solid var(--border-color);
       background: var(--card-bg);
       font-size: 0.95rem;
       outline: none;
@@ -67,8 +82,8 @@
     }
 
     .search-bar:focus {
-      border-color: var(--pink-accent);
-      box-shadow: 0 0 0 3px rgba(250, 210, 223, 0.4);
+      border-color: var(--brown-dark);
+      box-shadow: 0 0 0 3px rgba(99, 61, 30, 0.15);
     }
 
     .category-tabs {
@@ -87,7 +102,7 @@
     .tab-btn {
       padding: 8px 18px;
       border-radius: 20px;
-      border: 1px solid var(--border-color);
+      border: 1.5px solid var(--border-color);
       background: var(--card-bg);
       color: var(--brown-medium);
       font-size: 0.9rem;
@@ -97,9 +112,9 @@
     }
 
     .tab-btn.active {
-      background: var(--pink-accent);
-      color: var(--brown-dark);
-      border-color: var(--pink-accent);
+      background: var(--brown-dark);
+      color: #fff;
+      border-color: var(--brown-dark);
       font-weight: 500;
     }
 
@@ -116,7 +131,7 @@
       background: var(--card-bg);
       border-radius: 20px;
       overflow: hidden;
-      border: 1px solid var(--border-color);
+      border: 1.5px solid var(--border-color);
       box-shadow: 0 4px 12px rgba(0,0,0,0.03);
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
@@ -187,6 +202,7 @@
       border-radius: 12px;
       font-size: 0.8rem;
       font-weight: 500;
+      border: 1px solid var(--border-color);
     }
 
     /* Modal Popup */
@@ -216,6 +232,7 @@
       max-width: 500px;
       border-radius: 24px;
       overflow: hidden;
+      border: 1.5px solid var(--border-color);
       box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       max-height: 90vh;
       display: flex;
@@ -244,8 +261,8 @@
     .modal-close-btn {
       position: absolute;
       top: 12px; right: 12px;
-      background: rgba(255,255,255,0.8);
-      border: none;
+      background: rgba(255,255,255,0.9);
+      border: 1.5px solid var(--border-color);
       width: 32px; height: 32px;
       border-radius: 50%;
       font-size: 1.1rem;
@@ -268,13 +285,13 @@
       width: 50px; height: 50px;
       border-radius: 8px;
       overflow: hidden;
-      border: 2px solid transparent;
+      border: 2px solid var(--border-color);
       cursor: pointer;
       flex-shrink: 0;
     }
 
     .thumb-item.active {
-      border-color: var(--brown-dark);
+      border-color: var(--pink-dark);
     }
 
     .thumb-item img {
@@ -320,6 +337,7 @@
       white-space: pre-line;
       word-break: break-word;
       line-height: 1.6;
+      border: 1.5px solid var(--border-color);
     }
 
     .modal-price-table {
@@ -334,9 +352,10 @@
       background: #fff;
       border-radius: 8px;
       overflow: hidden;
+      border: 1.5px solid var(--border-color);
     }
     .modal-price-table th, .modal-price-table td {
-      border: 1px solid #E6D5B8;
+      border: 1px solid var(--border-color);
       padding: 6px 4px;
     }
 
@@ -350,7 +369,7 @@
       margin-bottom: 14px;
       background-color: #FFF8E7;
       color: var(--brown-dark);
-      border: 1.5px solid #E6D5B8;
+      border: 1.5px solid var(--border-color);
       border-radius: 14px;
       font-size: 0.9rem;
       font-weight: 600;
@@ -360,14 +379,14 @@
     }
     .guide-btn:hover {
       background-color: #FDE8EF;
-      border-color: #F5BFD1;
     }
 
+    /* ปุ่มสั่งซื้อผ่าน LINE สีชมพูเข้ม */
     .order-line-btn {
       width: 100%;
-      background-color: #06C755;
+      background-color: var(--pink-dark);
       color: white;
-      border: none;
+      border: 1.5px solid var(--border-color);
       padding: 14px;
       border-radius: 16px;
       font-size: 1rem;
@@ -414,9 +433,10 @@
 <body>
 
   <header>
-    <h1>FPKxRAINNN</h1>
-    <p>Product Catalog • เลือกชมสินค้าทั้งหมด กดที่รูปเพื่อดูรายละเอียดและสั่งซื้อผ่าน LINE</p>
-    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 ค้นหาชื่อสินค้า...">
+    <div class="shop-title-badge">FPKxRAINNN</div>
+    <h1>Product Catalog</h1>
+    <p>เลือกชมสินค้าทั้งหมด กดที่รูปเพื่อดูรายละเอียดเพิ่มเติมและสั่งซื้อผ่าน LINE</p>
+    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 ค้นหาชื่อสินค้า หรือรายละเอียด...">
   </header>
 
   <div class="category-tabs" id="categoryTabs"></div>
@@ -614,7 +634,6 @@
       const orderText = `สนใจสั่งซื้อสินค้า: ${selectedProduct.name} (${selectedProduct.price})`;
       try {
         await navigator.clipboard.writeText(orderText);
-        toast.cloneNode
         toast.classList.add("show");
         setTimeout(() => toast.classList.remove("show"), 2500);
       } catch (err) {}
