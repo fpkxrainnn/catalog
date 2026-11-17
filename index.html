@@ -814,7 +814,7 @@
       document.getElementById("modalStatus").textContent = selectedProduct.status ? `• ${selectedProduct.status}` : "";
       document.getElementById("modalTitle").textContent = selectedProduct.name;
       document.getElementById("modalPrice").textContent = selectedProduct.price;
-      document.getElementById("modalDesc").textContent = selectedProduct.description;
+      document.getElementById("modalDesc").innerHTML = selectedProduct.description;
 
       const thumbsContainer = document.getElementById("modalThumbs");
       if (selectedProduct.images.length > 1) {
