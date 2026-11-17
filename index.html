@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-color: #FFFDF9;
+      --bg-color: #FFF2F6; /* ปรับพื้นหลังเป็นสีชมพูอ่อน */
       --card-bg: #FFFFFF;
       --text-main: #4A3B32;
       --brown-medium: #7F5539;
@@ -45,7 +45,13 @@
     h1 {
       font-size: 1.8rem;
       color: var(--brown-dark);
-      margin-bottom: 12px;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      color: var(--brown-medium);
+      margin-bottom: 16px;
     }
 
     .search-bar {
@@ -54,7 +60,7 @@
       padding: 12px 18px;
       border-radius: 20px;
       border: 1px solid var(--border-color);
-      background: var(--input-bg);
+      background: var(--card-bg);
       font-size: 0.95rem;
       outline: none;
       transition: all 0.2s;
@@ -316,7 +322,6 @@
       line-height: 1.6;
     }
 
-    /* สไตล์สำหรับตารางเรทราคา HTML ที่ดึงมาจากช่องแยก */
     .modal-price-table {
       margin-bottom: 14px;
       overflow-x: auto;
@@ -386,7 +391,6 @@
       grid-column: 1 / -1;
     }
 
-    /* Toast Notification */
     .toast {
       position: fixed;
       bottom: 30px;
@@ -410,8 +414,9 @@
 <body>
 
   <header>
-    <h1>แค็ตตาล็อกสินค้า</h1>
-    <input type="text" id="searchInput" class="search-bar" placeholder="ค้นหาชื่อสินค้า หรือรายละเอียด...">
+    <h1>FPKxRAINNN</h1>
+    <p>Product Catalog • เลือกชมสินค้าทั้งหมด กดที่รูปเพื่อดูรายละเอียดและสั่งซื้อผ่าน LINE</p>
+    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 ค้นหาชื่อสินค้า...">
   </header>
 
   <div class="category-tabs" id="categoryTabs"></div>
@@ -448,9 +453,6 @@
   <div class="toast" id="toast">คัดลอกข้อความสั่งซื้อแล้ว! กำลังเปิด LINE...</div>
 
   <script>
-    // ==========================================
-    // ตั้งค่าร้านค้าและลิงก์ Google Sheets (CSV)
-    // ==========================================
     const LINE_URL = "https://lin.ee/6qFXvvj";
     const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSUO16HHpoFGT7jQOkCFe3BN_ZMGN3ILXrvonHRjVFKwtP8Z-k1_maNR6FKhbpnu9VK0VPD9B47fesL/pub?output=csv";
 
@@ -465,7 +467,6 @@
     const modal = document.getElementById("productModal");
     const toast = document.getElementById("toast");
 
-    // ฟังก์ชันแปลง CSV จาก Google Sheets
     function parseCSV(text) {
       const rows = [];
       let row = [], col = "", inQuotes = false;
@@ -492,8 +493,6 @@
         const csvText = await res.text();
         const rows = parseCSV(csvText);
         if (rows.length > 1) {
-          // โครงสร้างคอลัมน์ในชีต:
-          // [0] รหัส, [1] หมวดหมู่, [2] ชื่อสินค้า, [3] ราคา, [4] รายละเอียด, [5] ตารางเรทราคา(HTML), [6] รูปหลัก, [7] รูปเพิ่มเติม(คั่นด้วย ,), [8] ลิงก์ Google Drive
           products = rows.slice(1).map((r, idx) => {
             const extraImgs = r[7] ? r[7].split(",").map(s => s.trim()).filter(Boolean) : [];
             const allImgs = [r[6], ...extraImgs].filter(Boolean);
@@ -568,11 +567,8 @@
       document.getElementById("modalTitle").textContent = selectedProduct.name;
       document.getElementById("modalPrice").textContent = selectedProduct.price;
       document.getElementById("modalDesc").textContent = selectedProduct.description;
-      
-      // แสดงตารางเรทราคา (HTML)
       document.getElementById("modalPriceTable").innerHTML = selectedProduct.priceTable;
 
-      // จัดการปุ่มลิงก์ Google Drive
       const guideBtn = document.getElementById("modalGuideBtn");
       if (selectedProduct.guideUrl) {
         guideBtn.href = selectedProduct.guideUrl;
@@ -618,11 +614,10 @@
       const orderText = `สนใจสั่งซื้อสินค้า: ${selectedProduct.name} (${selectedProduct.price})`;
       try {
         await navigator.clipboard.writeText(orderText);
+        toast.cloneNode
         toast.classList.add("show");
         setTimeout(() => toast.classList.remove("show"), 2500);
-      } catch (err) {
-        // ข้ามกรณีเบราว์เซอร์บล็อก clipboard
-      }
+      } catch (err) {}
       setTimeout(() => {
         window.open(LINE_URL, "_blank", "noopener");
       }, 450);
