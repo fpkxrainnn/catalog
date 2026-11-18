@@ -122,21 +122,21 @@
       font-weight: 500;
     }
 
-    /* กล่องเลือกหมวดย่อยแบบ Dropdown */
+    /* Custom Dropdown หมวดหมู่ย่อย */
     .sub-category-container {
       display: none;
       width: 100%;
       max-width: 400px;
       margin-bottom: 20px;
-      justify-content: center;
+      position: relative;
     }
     .sub-category-container.visible {
-      display: flex;
+      display: block;
     }
 
-    .sub-category-select {
+    .custom-dropdown-btn {
       width: 100%;
-      padding: 10px 16px;
+      padding: 12px 18px;
       border-radius: 16px;
       border: none;
       background: var(--card-bg);
@@ -146,35 +146,56 @@
       outline: none;
       box-shadow: 0 2px 6px rgba(0,0,0,0.03);
       cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       transition: all 0.2s;
     }
-    .sub-category-select:focus {
+    .custom-dropdown-btn:focus {
       box-shadow: 0 0 0 3px rgba(250, 210, 223, 0.4);
     }
 
-    .sub-category-select option {
-      background-color: #FFFFFF;
-      color: var(--brown-dark);
-      padding: 10px;
+    .custom-dropdown-list {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      z-index: 100;
+      max-height: 250px;
+      overflow-y: auto;
+      display: none;
+      padding: 6px;
     }
-    /* เปลี่ยนสีเป็นชมพูอ่อนทั้งตอนเอาเมาส์ชี้ (Hover) และตอนเลือก (Checked/Active) */
-    .sub-category-select option:hover,
-    .sub-category-select option:focus,
-    .sub-category-select option:checked {
-      background-color: #FFD8EF !important; /* สีชมพูอ่อน */
-      color: var(--brown-dark) !important;
+    .custom-dropdown-list.open {
+      display: block;
+    }
+
+    .custom-dropdown-item {
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--brown-dark);
+      transition: background 0.15s;
+    }
+    .custom-dropdown-item:hover,
+    .custom-dropdown-item.selected {
+      background-color: var(--pink-soft); /* สีชมพูอ่อนเมื่อเอาเมาส์ชี้หรือเลือก */
+      font-weight: 500;
     }
 
     .product-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr); /* บังคับให้มือถือแสดง 2 คอลัมน์คู่กัน */
+      grid-template-columns: repeat(2, 1fr);
       gap: 12px;
       width: 100%;
       max-width: 1200px;
       margin-bottom: 40px;
     }
 
-    /* สำหรับจอคอมพิวเตอร์หรือจอใหญ่ ให้ขยายเป็นหลายคอลัมน์อัตโนมัติเหมือนเดิม */
     @media (min-width: 768px) {
       .product-grid {
         grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -401,12 +422,12 @@
       background: var(--desc-bg);
       padding: 14px;
       border-radius: 14px;
-      font-size: 0.85rem; /* ลดขนาดตัวหนังสือลงเล็กน้อย */
+      font-size: 0.85rem;
       color: var(--brown-medium);
       margin-bottom: 14px;
       white-space: pre-line;
       word-break: break-word;
-      line-height: 1.5; /* ปรับระยะบรรทัดให้กระชับสวยงาม */
+      line-height: 1.5;
     }
 
     .guide-btn {
@@ -516,9 +537,13 @@
 
   <div class="category-tabs" id="categoryTabs"></div>
   
-  <!-- เมนูแบบเลื่อนลงสำหรับหมวดหมู่ย่อย -->
+  <!-- Custom Dropdown หมวดหมู่ย่อย -->
   <div class="sub-category-container" id="subCategoryContainer">
-    <select class="sub-category-select" id="subCategorySelect"></select>
+    <button class="custom-dropdown-btn" id="customDropdownBtn">
+      <span id="customDropdownText">📂 ทั้งหมด</span>
+      <span>▼</span>
+    </button>
+    <div class="custom-dropdown-list" id="customDropdownList"></div>
   </div>
 
   <main class="product-grid" id="productGrid"></main>
@@ -572,7 +597,9 @@
     const productGrid = document.getElementById("productGrid");
     const categoryTabs = document.getElementById("categoryTabs");
     const subCategoryContainer = document.getElementById("subCategoryContainer");
-    const subCategorySelect = document.getElementById("subCategorySelect");
+    const customDropdownBtn = document.getElementById("customDropdownBtn");
+    const customDropdownText = document.getElementById("customDropdownText");
+    const customDropdownList = document.getElementById("customDropdownList");
     const searchInput = document.getElementById("searchInput");
     const modal = document.getElementById("productModal");
     const toast = document.getElementById("toast");
@@ -615,7 +642,7 @@
               priceTable: r[5] || "",
               images: allImgs.length ? allImgs : ["https://placehold.co/600x600/FAD2DF/633D1E?text=No+Image"],
               guideUrl: r[8] || "",
-              subCategory: r[9] ? r[9].trim() : "" // คอลัมน์ J (หมวดหมู่ย่อย)
+              subCategory: r[9] ? r[9].trim() : ""
             };
           });
         }
@@ -633,7 +660,7 @@
         tabBtn.textContent = cat;
         tabBtn.onclick = () => {
           activeCategory = cat;
-          activeSubCategory = "ทั้งหมด"; // รีเซ็ตหมวดย่อยเมื่อเปลี่ยนหมวดหลัก
+          activeSubCategory = "ทั้งหมด";
           renderCategories();
           renderSubCategories();
           renderProducts();
@@ -645,7 +672,7 @@
     function renderSubCategories() {
       if (activeCategory === "ทั้งหมด") {
         subCategoryContainer.classList.remove("visible");
-        subCategorySelect.innerHTML = "";
+        customDropdownList.classList.remove("open");
         return;
       }
 
@@ -657,28 +684,38 @@
 
       if (subCats.length === 0) {
         subCategoryContainer.classList.remove("visible");
-        subCategorySelect.innerHTML = "";
+        customDropdownList.classList.remove("open");
         return;
       }
 
       const allSubTabs = ["ทั้งหมด", ...subCats];
-      subCategorySelect.innerHTML = "";
+      customDropdownText.textContent = activeSubCategory === "ทั้งหมด" ? `📂 ทั้งหมดในหมวด ${activeCategory}` : activeSubCategory;
+      
+      customDropdownList.innerHTML = "";
       allSubTabs.forEach(sub => {
-        const option = document.createElement("option");
-        option.value = sub;
-        option.textContent = sub === "ทั้งหมด" ? `📂 ทั้งหมดในหมวด ${activeCategory}` : sub;
-        if (sub === activeSubCategory) {
-          option.selected = true;
-        }
-        subCategorySelect.appendChild(option);
+        const item = document.createElement("div");
+        item.className = `custom-dropdown-item ${sub === activeSubCategory ? "selected" : ""}`;
+        item.textContent = sub === "ทั้งหมด" ? `📂 ทั้งหมดในหมวด ${activeCategory}` : sub;
+        item.onclick = () => {
+          activeSubCategory = sub;
+          customDropdownText.textContent = item.textContent;
+          customDropdownList.classList.remove("open");
+          renderSubCategories();
+          renderProducts();
+        };
+        customDropdownList.appendChild(item);
       });
       subCategoryContainer.classList.add("visible");
     }
 
-    subCategorySelect.addEventListener("change", (e) => {
-      activeSubCategory = e.target.value;
-      renderProducts();
-    });
+    customDropdownBtn.onclick = (e) => {
+      e.stopPropagation();
+      customDropdownList.classList.toggle("open");
+    };
+
+    window.onclick = () => {
+      customDropdownList.classList.remove("open");
+    };
 
     function renderProducts() {
       const q = searchQuery.toLowerCase();
