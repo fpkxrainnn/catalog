@@ -154,11 +154,19 @@
 
     .product-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(2, 1fr); /* บังคับให้มือถือแสดง 2 คอลัมน์คู่กัน */
+      gap: 12px;
       width: 100%;
       max-width: 1200px;
       margin-bottom: 40px;
+    }
+
+    /* สำหรับจอคอมพิวเตอร์หรือจอใหญ่ ให้ขยายเป็นหลายคอลัมน์อัตโนมัติเหมือนเดิม */
+    @media (min-width: 768px) {
+      .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+      }
     }
 
     .product-card {
