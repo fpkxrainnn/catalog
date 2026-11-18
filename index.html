@@ -152,18 +152,18 @@
       box-shadow: 0 0 0 3px rgba(250, 210, 223, 0.4);
     }
 
-    /* === นำโค้ดชุดนี้ไปวางเพิ่มตรงนี้ได้เลยครับ === */
     .sub-category-select option {
       background-color: #FFFFFF;
       color: var(--brown-dark);
       padding: 10px;
     }
+    /* เปลี่ยนสีเป็นชมพูอ่อนทั้งตอนเอาเมาส์ชี้ (Hover) และตอนเลือก (Checked/Active) */
     .sub-category-select option:hover,
+    .sub-category-select option:focus,
     .sub-category-select option:checked {
       background-color: #FFD8EF !important; /* สีชมพูอ่อน */
       color: var(--brown-dark) !important;
     }
-    /* ======================================= */
 
     .product-grid {
       display: grid;
