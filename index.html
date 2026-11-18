@@ -96,7 +96,7 @@
       overflow-x: auto;
       max-width: 100%;
       padding: 8px 4px;
-      margin-bottom: 24px;
+      margin-bottom: 12px;
       scrollbar-width: none;
     }
     .category-tabs::-webkit-scrollbar {
@@ -120,6 +120,42 @@
       background: var(--brown-dark);
       color: #fff;
       font-weight: 500;
+    }
+
+    /* แถบหมวดหมู่ย่อย (Sub-category) */
+    .sub-category-tabs {
+      display: none;
+      gap: 8px;
+      overflow-x: auto;
+      max-width: 100%;
+      padding: 4px 4px 12px 4px;
+      margin-bottom: 16px;
+      scrollbar-width: none;
+    }
+    .sub-category-tabs.visible {
+      display: flex;
+    }
+    .sub-category-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .sub-tab-btn {
+      padding: 6px 14px;
+      border-radius: 16px;
+      border: none;
+      background: var(--card-bg);
+      color: var(--brown-medium);
+      font-size: 0.82rem;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+      transition: all 0.2s;
+    }
+
+    .sub-tab-btn.active {
+      background: var(--pink-soft);
+      color: var(--brown-dark);
+      font-weight: 600;
     }
 
     .product-grid {
@@ -167,8 +203,7 @@
       font-size: 0.75rem;
       color: var(--brown-medium);
       padding: 12px 16px 0 16px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
 
     .card-title {
@@ -461,10 +496,11 @@
     <div class="shop-title-badge">FPKxRAINNN</div>
     <h1>Product Catalog</h1>
     <p>เลือกชมสินค้าทั้งหมด กดที่รูปเพื่อดูรายละเอียดเพิ่มเติมและสั่งซื้อผ่าน LINE</p>
-    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 ค้นหาชื่อสินค้า หรือรายละเอียด...">
+    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 ค้นหาชื่อสินค้า หมวดหมู่ หรือรายละเอียด...">
   </header>
 
   <div class="category-tabs" id="categoryTabs"></div>
+  <div class="sub-category-tabs" id="subCategoryTabs"></div>
 
   <main class="product-grid" id="productGrid"></main>
 
@@ -484,7 +520,6 @@
         <h2 class="modal-title" id="modalTitle">ชื่อสินค้า</h2>
         <div class="modal-price" id="modalPrice">ราคา</div>
         
-        <!-- ตารางเรทราคาขึ้นมาก่อนรายละเอียดสินค้า -->
         <div class="modal-price-table" id="modalPriceTable"></div>
         <div class="modal-desc" id="modalDesc">รายละเอียดสินค้า</div>
 
@@ -511,11 +546,13 @@
 
     let products = [];
     let activeCategory = "ทั้งหมด";
+    let activeSubCategory = "ทั้งหมด";
     let searchQuery = "";
     let selectedProduct = null;
 
     const productGrid = document.getElementById("productGrid");
     const categoryTabs = document.getElementById("categoryTabs");
+    const subCategoryTabs = document.getElementById("subCategoryTabs");
     const searchInput = document.getElementById("searchInput");
     const modal = document.getElementById("productModal");
     const toast = document.getElementById("toast");
@@ -557,7 +594,8 @@
               description: r[4] || "",
               priceTable: r[5] || "",
               images: allImgs.length ? allImgs : ["https://placehold.co/600x600/FAD2DF/633D1E?text=No+Image"],
-              guideUrl: r[8] || ""
+              guideUrl: r[8] || "",
+              subCategory: r[9] ? r[9].trim() : "" // คอลัมน์ J (หมวดหมู่ย่อย)
             };
           });
         }
@@ -575,19 +613,59 @@
         tabBtn.textContent = cat;
         tabBtn.onclick = () => {
           activeCategory = cat;
+          activeSubCategory = "ทั้งหมด"; // รีเซ็ตหมวดย่อยเมื่อเปลี่ยนหมวดหลัก
           renderCategories();
+          renderSubCategories();
           renderProducts();
         };
         categoryTabs.appendChild(tabBtn);
       });
     }
 
+    function renderSubCategories() {
+      if (activeCategory === "ทั้งหมด") {
+        subCategoryTabs.classList.remove("visible");
+        subCategoryTabs.innerHTML = "";
+        return;
+      }
+
+      const subCats = [...new Set(
+        products
+          .filter(p => p.category === activeCategory && p.subCategory)
+          .map(p => p.subCategory)
+      )];
+
+      if (subCats.length === 0) {
+        subCategoryTabs.classList.remove("visible");
+        subCategoryTabs.innerHTML = "";
+        return;
+      }
+
+      const allSubTabs = ["ทั้งหมด", ...subCats];
+      subCategoryTabs.innerHTML = "";
+      allSubTabs.forEach(sub => {
+        const subBtn = document.createElement("button");
+        subBtn.className = `sub-tab-btn ${sub === activeSubCategory ? "active" : ""}`;
+        subBtn.textContent = sub === "ทั้งหมด" ? `ทั้งหมดใน${activeCategory}` : sub;
+        subBtn.onclick = () => {
+          activeSubCategory = sub;
+          renderSubCategories();
+          renderProducts();
+        };
+        subCategoryTabs.appendChild(subBtn);
+      });
+      subCategoryTabs.classList.add("visible");
+    }
+
     function renderProducts() {
+      const q = searchQuery.toLowerCase();
       const filtered = products.filter(p => {
         const matchCat = activeCategory === "ทั้งหมด" || p.category === activeCategory;
-        const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            p.description.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchCat && matchSearch;
+        const matchSubCat = activeSubCategory === "ทั้งหมด" || p.subCategory === activeSubCategory;
+        const matchSearch = p.name.toLowerCase().includes(q) ||
+                            p.description.toLowerCase().includes(q) ||
+                            p.subCategory.toLowerCase().includes(q);
+        return matchCat && matchSubCat && matchSearch;
       });
 
       if (filtered.length === 0) {
@@ -595,27 +673,34 @@
         return;
       }
 
-      productGrid.innerHTML = filtered.map(p => `
-        <article class="product-card" onclick="openProductModal('${p.id}')">
-          <div class="img-wrapper">
-            <img src="${p.images[0]}" alt="${p.name}" loading="lazy" />
-          </div>
-          <div class="card-category">${p.category}</div>
-          <h3 class="card-title">${p.name}</h3>
-          <div class="card-footer">
-            <span class="card-price">${p.price}</span>
-            <span class="view-pill">ดูรายละเอียด</span>
-          </div>
-        </article>
-      `).join("");
+      productGrid.innerHTML = filtered.map(p => {
+        const catLabel = p.subCategory ? `${p.category} • ${p.subCategory}` : p.category;
+        return `
+          <article class="product-card" onclick="openProductModal('${p.id}')">
+            <div class="img-wrapper">
+              <img src="${p.images[0]}" alt="${p.name}" loading="lazy" />
+            </div>
+            <div class="card-category">${catLabel}</div>
+            <h3 class="card-title">${p.name}</h3>
+            <div class="card-footer">
+              <span class="card-price">${p.price}</span>
+              <span class="view-pill">ดูรายละเอียด</span>
+            </div>
+          </article>
+        `;
+      }).join("");
     }
 
     window.openProductModal = function(id) {
       selectedProduct = products.find(p => p.id === id);
       if (!selectedProduct) return;
 
+      const catLabel = selectedProduct.subCategory
+        ? `${selectedProduct.category} • ${selectedProduct.subCategory}`
+        : selectedProduct.category;
+
       document.getElementById("modalMainImg").src = selectedProduct.images[0];
-      document.getElementById("modalCategory").textContent = selectedProduct.category;
+      document.getElementById("modalCategory").textContent = catLabel;
       document.getElementById("modalStatus").textContent = "";
       document.getElementById("modalTitle").textContent = selectedProduct.name;
       document.getElementById("modalPrice").textContent = selectedProduct.price;
@@ -683,6 +768,7 @@
     (async function init() {
       await loadFromGoogleSheets();
       renderCategories();
+      renderSubCategories();
       renderProducts();
     })();
   </script>
