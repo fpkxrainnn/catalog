@@ -7,14 +7,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-color: #FFFAEF;
+      --bg-color: #FFF2F6;
       --card-bg: #FFFFFF;
-      --text-main: #92736C;
-      --brown-medium: #92736C;
-      --brown-dark: #92736C;
-      --pink-soft: #FFEAF6;
-      --pink-accent: #BA9289;
-      --pink-button-light: #FFEAF6; /* สีชมพูอ่อนละมุนสำหรับปุ่มสั่งซื้อ/X */
+      --text-main: #4A3B32;
+      --brown-medium: #7F5539;
+      --brown-dark: #633D1E;
+      --pink-soft: #FDE8EF;
+      --pink-accent: #FAD2DF;
+      --pink-button-light: #FCE4EC;
     }
 
     * {
@@ -322,18 +322,7 @@
       margin-bottom: 14px;
     }
 
-    .modal-desc {
-      background: var(--pink-soft); /* พื้นหลังรายละเอียดเป็นสีชมพูอ่อน */
-      padding: 14px;
-      border-radius: 14px;
-      font-size: 0.92rem;
-      color: var(--brown-medium);
-      margin-bottom: 14px;
-      white-space: pre-line;
-      word-break: break-word;
-      line-height: 1.6;
-    }
-
+    /* สลับให้ตารางราคาขึ้นมาก่อนรายละเอียดทั่วไป */
     .modal-price-table {
       margin-bottom: 14px;
       overflow-x: auto;
@@ -350,6 +339,18 @@
     .modal-price-table th, .modal-price-table td {
       border: 1px solid #F5D0DE;
       padding: 6px 4px;
+    }
+
+    .modal-desc {
+      background: var(--pink-soft);
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 0.92rem;
+      color: var(--brown-medium);
+      margin-bottom: 14px;
+      white-space: pre-line;
+      word-break: break-word;
+      line-height: 1.6;
     }
 
     .guide-btn {
@@ -373,7 +374,6 @@
       background-color: #FDE8EF;
     }
 
-    /* ปุ่มติดต่อ (LINE และ X) สีชมพูอ่อนละมุน */
     .action-buttons {
       display: flex;
       gap: 10px;
@@ -477,8 +477,11 @@
         </div>
         <h2 class="modal-title" id="modalTitle">ชื่อสินค้า</h2>
         <div class="modal-price" id="modalPrice">ราคา</div>
-        <div class="modal-desc" id="modalDesc">รายละเอียดสินค้า</div>
+        
+        <!-- ตารางเรทราคาถูกย้ายขึ้นมาแสดงก่อนรายละเอียดสินค้า -->
         <div class="modal-price-table" id="modalPriceTable"></div>
+        <div class="modal-desc" id="modalDesc">รายละเอียดสินค้า</div>
+
         <a id="modalGuideBtn" class="guide-btn" href="#" target="_blank" rel="noopener" style="display: none;">
           📂 ดูวิธีจัดเตรียมไฟล์ / วิธีจัดส่ง
         </a>
@@ -561,15 +564,17 @@
       const categories = ["ทั้งหมด", ...new Set(products.map(p => p.category))];
       categoryTabs.innerHTML = "";
       categories.forEach(cat => {
-        const btn = document.createElement("button");
-        btn.className = `tab-btn ${cat === activeCategory ? "active" : ""}`;
-        btn.textContent = cat;
-        btn.onclick = () => {
+        const btn = document.button ? document.button() : document.createElement("button"); // safe fallback
+        // standard button creation:
+        const tabBtn = document.createElement("button");
+        tabBtn.className = `tab-btn ${cat === activeCategory ? "active" : ""}`;
+        tabBtn.textContent = cat;
+        tabBtn.onclick = () => {
           activeCategory = cat;
           renderCategories();
           renderProducts();
         };
-        categoryTabs.appendChild(btn);
+        categoryTabs.appendChild(tabBtn);
       });
     }
 
@@ -610,8 +615,8 @@
       document.getElementById("modalStatus").textContent = "";
       document.getElementById("modalTitle").textContent = selectedProduct.name;
       document.getElementById("modalPrice").textContent = selectedProduct.price;
-      document.getElementById("modalDesc").textContent = selectedProduct.description;
       document.getElementById("modalPriceTable").innerHTML = selectedProduct.priceTable;
+      document.getElementById("modalDesc").textContent = selectedProduct.description;
 
       const guideBtn = document.getElementById("modalGuideBtn");
       if (selectedProduct.guideUrl) {
