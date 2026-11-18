@@ -6,14 +6,14 @@
   <title>FPKxRAINNN - Product Catalog</title>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-   :root {
+    :root {
       --bg-color: #FFF2F6;
       --card-bg: #FFFFFF;
       --text-main: #92736C;
       --brown-medium: #BA9289;
       --brown-dark: #92736C;
-      --pink-soft: #FFD8EF;       /* สีป้าย "ดูรายละเอียด" บนการ์ดสินค้า */
-      --desc-bg: #FFFAED;         /* สีพื้นหลังช่องรายละเอียดสินค้า (เปลี่ยนสีตรงนี้ได้เลย) */
+      --pink-soft: #FFF8EA;
+      --desc-bg: #FFFAED;
       --pink-accent: #FAD2DF;
       --pink-button-light: #FFD8EF;
     }
@@ -74,10 +74,16 @@
       border-radius: 20px;
       border: none;
       background: var(--card-bg);
+      color: var(--brown-dark);
       font-size: 0.95rem;
       outline: none;
       box-shadow: 0 2px 8px rgba(0,0,0,0.03);
       transition: all 0.2s;
+    }
+
+    .search-bar::placeholder {
+      color: var(--brown-medium);
+      opacity: 1;
     }
 
     .search-bar:focus {
@@ -323,7 +329,6 @@
       margin-bottom: 14px;
     }
 
-    /* สลับให้ตารางราคาขึ้นมาก่อนรายละเอียดทั่วไป */
     .modal-price-table {
       margin-bottom: 14px;
       overflow-x: auto;
@@ -343,7 +348,7 @@
     }
 
     .modal-desc {
-      background: var(--pink-soft);
+      background: var(--desc-bg);
       padding: 14px;
       border-radius: 14px;
       font-size: 0.92rem;
@@ -433,7 +438,7 @@
     .toast {
       position: fixed;
       bottom: 30px;
-      background: rgba(74, 59, 50, 0.9);
+      background: rgba(146, 115, 108, 0.95);
       color: #fff;
       padding: 10px 20px;
       border-radius: 20px;
@@ -479,7 +484,7 @@
         <h2 class="modal-title" id="modalTitle">ชื่อสินค้า</h2>
         <div class="modal-price" id="modalPrice">ราคา</div>
         
-        <!-- ตารางเรทราคาถูกย้ายขึ้นมาแสดงก่อนรายละเอียดสินค้า -->
+        <!-- ตารางเรทราคาขึ้นมาก่อนรายละเอียดสินค้า -->
         <div class="modal-price-table" id="modalPriceTable"></div>
         <div class="modal-desc" id="modalDesc">รายละเอียดสินค้า</div>
 
@@ -545,143 +550,3 @@
             const extraImgs = r[7] ? r[7].split(",").map(s => s.trim()).filter(Boolean) : [];
             const allImgs = [r[6], ...extraImgs].filter(Boolean);
             return {
-              id: r[0] || `ITEM-${idx + 1}`,
-              category: r[1] || "ทั่วไป",
-              name: r[2] || "ไม่มีชื่อสินค้า",
-              price: r[3] || "สอบถามราคา",
-              description: r[4] || "",
-              priceTable: r[5] || "",
-              images: allImgs.length ? allImgs : ["https://placehold.co/600x600/FAD2DF/633D1E?text=No+Image"],
-              guideUrl: r[8] || ""
-            };
-          });
-        }
-      } catch (err) {
-        console.error("โหลดข้อมูลจาก Google Sheets ไม่สำเร็จ:", err);
-      }
-    }
-
-    function renderCategories() {
-      const categories = ["ทั้งหมด", ...new Set(products.map(p => p.category))];
-      categoryTabs.innerHTML = "";
-      categories.forEach(cat => {
-        const btn = document.button ? document.button() : document.createElement("button"); // safe fallback
-        // standard button creation:
-        const tabBtn = document.createElement("button");
-        tabBtn.className = `tab-btn ${cat === activeCategory ? "active" : ""}`;
-        tabBtn.textContent = cat;
-        tabBtn.onclick = () => {
-          activeCategory = cat;
-          renderCategories();
-          renderProducts();
-        };
-        categoryTabs.appendChild(tabBtn);
-      });
-    }
-
-    function renderProducts() {
-      const filtered = products.filter(p => {
-        const matchCat = activeCategory === "ทั้งหมด" || p.category === activeCategory;
-        const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            p.description.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchCat && matchSearch;
-      });
-
-      if (filtered.length === 0) {
-        productGrid.innerHTML = `<div class="empty-state">ไม่พบสินค้าที่ค้นหา ลองเลือกหมวดหมู่อื่นดูนะคะ</div>`;
-        return;
-      }
-
-      productGrid.innerHTML = filtered.map(p => `
-        <article class="product-card" onclick="openProductModal('${p.id}')">
-          <div class="img-wrapper">
-            <img src="${p.images[0]}" alt="${p.name}" loading="lazy" />
-          </div>
-          <div class="card-category">${p.category}</div>
-          <h3 class="card-title">${p.name}</h3>
-          <div class="card-footer">
-            <span class="card-price">${p.price}</span>
-            <span class="view-pill">ดูรายละเอียด</span>
-          </div>
-        </article>
-      `).join("");
-    }
-
-    window.openProductModal = function(id) {
-      selectedProduct = products.find(p => p.id === id);
-      if (!selectedProduct) return;
-
-      document.getElementById("modalMainImg").src = selectedProduct.images[0];
-      document.getElementById("modalCategory").textContent = selectedProduct.category;
-      document.getElementById("modalStatus").textContent = "";
-      document.getElementById("modalTitle").textContent = selectedProduct.name;
-      document.getElementById("modalPrice").textContent = selectedProduct.price;
-      document.getElementById("modalPriceTable").innerHTML = selectedProduct.priceTable;
-      document.getElementById("modalDesc").textContent = selectedProduct.description;
-
-      const guideBtn = document.getElementById("modalGuideBtn");
-      if (selectedProduct.guideUrl) {
-        guideBtn.href = selectedProduct.guideUrl;
-        guideBtn.style.display = "inline-flex";
-      } else {
-        guideBtn.style.display = "none";
-      }
-
-      const thumbsContainer = document.getElementById("modalThumbs");
-      if (selectedProduct.images.length > 1) {
-        thumbsContainer.style.display = "flex";
-        thumbsContainer.innerHTML = selectedProduct.images.map((imgUrl, index) => `
-          <div class="thumb-item ${index === 0 ? "active" : ""}" onclick="changeModalImage(this, '${imgUrl}')">
-            <img src="${imgUrl}" alt="Thumbnail ${index + 1}" />
-          </div>
-        `).join("");
-      } else {
-        thumbsContainer.style.display = "none";
-      }
-
-      modal.classList.add("open");
-      document.body.style.overflow = "hidden";
-    };
-
-    window.changeModalImage = function(el, url) {
-      document.getElementById("modalMainImg").src = url;
-      document.querySelectorAll(".thumb-item").forEach(item => item.classList.remove("active"));
-      el.classList.add("active");
-    };
-
-    function closeProductModal() {
-      modal.classList.remove("open");
-      document.body.style.overflow = "";
-    }
-
-    document.getElementById("closeModal").onclick = closeProductModal;
-    modal.onclick = (e) => {
-      if (e.target === modal) closeProductModal();
-    };
-
-    document.getElementById("orderLineBtn").onclick = async () => {
-      if (!selectedProduct) return;
-      const orderText = `สนใจสั่งซื้อสินค้า: ${selectedProduct.name} (${selectedProduct.price})`;
-      try {
-        await navigator.clipboard.writeText(orderText);
-        toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 2500);
-      } catch (err) {}
-      setTimeout(() => {
-        window.open(LINE_URL, "_blank", "noopener");
-      }, 450);
-    };
-
-    searchInput.addEventListener("input", (e) => {
-      searchQuery = e.target.value;
-      renderProducts();
-    });
-
-    (async function init() {
-      await loadFromGoogleSheets();
-      renderCategories();
-      renderProducts();
-    })();
-  </script>
-</body>
-</html>
