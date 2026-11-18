@@ -152,6 +152,19 @@
       box-shadow: 0 0 0 3px rgba(250, 210, 223, 0.4);
     }
 
+    /* === นำโค้ดชุดนี้ไปวางเพิ่มตรงนี้ได้เลยครับ === */
+    .sub-category-select option {
+      background-color: #FFFFFF;
+      color: var(--brown-dark);
+      padding: 10px;
+    }
+    .sub-category-select option:hover,
+    .sub-category-select option:checked {
+      background-color: #FFD8EF !important; /* สีชมพูอ่อน */
+      color: var(--brown-dark) !important;
+    }
+    /* ======================================= */
+
     .product-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr); /* บังคับให้มือถือแสดง 2 คอลัมน์คู่กัน */
