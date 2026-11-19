@@ -37,7 +37,7 @@
 
     header {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       width: 100%;
       max-width: 1200px;
     }
@@ -88,6 +88,33 @@
 
     .search-bar:focus {
       box-shadow: 0 0 0 3px rgba(250, 210, 223, 0.4);
+    }
+
+    /* ปุ่มเปิดหน้าต่างเงื่อนไขการผลิตและเคลม */
+    .terms-trigger-wrap {
+      margin-top: 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .terms-btn {
+      background: var(--card-bg);
+      color: var(--brown-dark);
+      border: 1px solid var(--pink-accent);
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .terms-btn:hover {
+      background: var(--pink-soft);
     }
 
     .category-tabs {
@@ -183,14 +210,14 @@
     }
     .custom-dropdown-item:hover,
     .custom-dropdown-item.selected {
-      background-color: var(--pink-soft); /* สีชมพูอ่อนเมื่อเอาเมาส์ชี้หรือเลือก */
+      background-color: var(--pink-soft);
       font-weight: 500;
     }
 
     .product-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+      gap: 10px;
       width: 100%;
       max-width: 1200px;
       margin-bottom: 40px;
@@ -205,7 +232,7 @@
 
     .product-card {
       background: var(--card-bg);
-      border-radius: 20px;
+      border-radius: 18px;
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0,0,0,0.03);
       cursor: pointer;
@@ -238,44 +265,127 @@
     .card-category {
       font-size: 0.75rem;
       color: var(--brown-medium);
-      padding: 12px 16px 0 16px;
-      letter-spacing: 0.3px;
+      padding: 10px 14px 0 14px;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .card-title {
-      font-size: 1rem;
+      font-size: 0.98rem;
       font-weight: 600;
       color: var(--brown-dark);
-      padding: 4px 16px;
+      padding: 3px 14px;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       flex-grow: 1;
+      line-height: 1.35;
     }
 
     .card-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 16px 16px 16px;
+      gap: 6px;
+      padding: 8px 14px 12px 14px;
       border-top: 1px solid #fdf5f8;
-      margin-top: 8px;
+      margin-top: 6px;
     }
 
     .card-price {
-      font-size: 1.05rem;
+      font-size: 0.95rem;
       font-weight: 600;
       color: var(--brown-dark);
+      line-height: 1.3;
     }
 
     .view-pill {
       background: var(--pink-soft);
       color: var(--brown-dark);
-      padding: 6px 12px;
-      border-radius: 12px;
-      font-size: 0.8rem;
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-size: 0.75rem;
       font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ปรับขนาดตัวหนังสือและการจัดวางบนมือถือให้เล็กลงและเห็นรายการได้เยอะขึ้น */
+    @media (max-width: 767px) {
+      body {
+        padding: 12px;
+      }
+
+      header {
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        font-size: 1.65rem;
+      }
+
+      header p {
+        font-size: 0.8rem;
+        margin-bottom: 10px;
+      }
+
+      .search-bar {
+        padding: 9px 14px;
+        font-size: 0.85rem;
+      }
+
+      .terms-btn {
+        padding: 6px 14px;
+        font-size: 0.78rem;
+      }
+
+      .tab-btn {
+        padding: 6px 14px;
+        font-size: 0.8rem;
+      }
+
+      .custom-dropdown-btn {
+        padding: 9px 14px;
+        font-size: 0.82rem;
+      }
+
+      .product-card {
+        border-radius: 14px;
+      }
+
+      .card-category {
+        font-size: 0.65rem;
+        padding: 7px 9px 0 9px;
+      }
+
+      .card-title {
+        font-size: 0.78rem;
+        padding: 2px 9px;
+        line-height: 1.3;
+      }
+
+      .card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        padding: 6px 9px 9px 9px;
+        margin-top: 4px;
+      }
+
+      .card-price {
+        font-size: 0.72rem;
+        font-weight: 600;
+        line-height: 1.25;
+      }
+
+      .view-pill {
+        padding: 3px 8px;
+        font-size: 0.65rem;
+        border-radius: 8px;
+      }
     }
 
     /* Modal Popup */
@@ -315,6 +425,64 @@
 
     .modal-overlay.open .modal-content {
       transform: scale(1);
+    }
+
+    .terms-modal-content {
+      max-width: 540px;
+      padding: 24px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .terms-modal-close {
+      position: sticky;
+      top: 0;
+      float: right;
+      background: var(--pink-soft);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brown-dark);
+      font-weight: 600;
+    }
+
+    .terms-heading {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--brown-dark);
+      margin-bottom: 14px;
+      padding-right: 36px;
+    }
+
+    .terms-section {
+      background: var(--desc-bg);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+      font-size: 0.86rem;
+      line-height: 1.65;
+      color: var(--brown-dark);
+    }
+
+    .terms-section h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--brown-dark);
+    }
+
+    .terms-section ul {
+      padding-left: 18px;
+    }
+
+    .terms-section li {
+      margin-bottom: 6px;
     }
 
     .modal-img-container {
@@ -533,13 +701,16 @@
     <h1>Product Catalog</h1>
     <p>เลือกชมสินค้าทั้งหมด กดที่รูปเพื่อดูรายละเอียดเพิ่มเติมและสั่งซื้อผ่าน LINE</p>
     <input type="text" id="searchInput" class="search-bar" placeholder="🔍 ค้นหาชื่อสินค้า หมวดหมู่ หรือรายละเอียด...">
+    <div class="terms-trigger-wrap">
+      <button type="button" class="terms-btn" id="openTermsBtn">📜 เงื่อนไขการผลิตและเคลมสินค้า</button>
+    </div>
   </header>
 
   <div class="category-tabs" id="categoryTabs"></div>
   
   <!-- Custom Dropdown หมวดหมู่ย่อย -->
   <div class="sub-category-container" id="subCategoryContainer">
-    <button class="custom-dropdown-btn" id="customDropdownBtn">
+    <button type="button" class="custom-dropdown-btn" id="customDropdownBtn">
       <span id="customDropdownText">📂 ทั้งหมด</span>
       <span>▼</span>
     </button>
@@ -548,7 +719,33 @@
 
   <main class="product-grid" id="productGrid"></main>
 
-  <!-- Modal -->
+  <!-- Modal เงื่อนไขการผลิตและเคลมสินค้า (แก้ไขข้อความได้ในส่วนนี้) -->
+  <div class="modal-overlay" id="termsModal">
+    <div class="modal-content terms-modal-content">
+      <button type="button" class="terms-modal-close" id="closeTermsBtn">&times;</button>
+      <h2 class="terms-heading">📜 เงื่อนไขการผลิตและการเคลมสินค้า</h2>
+
+      <div class="terms-section">
+        <h3>✨ เงื่อนไขการผลิต</h3>
+        <ul>
+          <li>กรุณาตรวจสอบไฟล์งาน ขนาด สี และจุดตัดให้เรียบร้อยก่อนส่งผลิต ทางร้านผลิตตามไฟล์ที่ลูกค้ายืนยันเป็นหลัก</li>
+          <li>สีงานพิมพ์จริงอาจมีความคลาดเคลื่อนจากหน้าจอเล็กน้อย (ประมาณ 5–15%) ตามการตั้งค่าหน้าจอและล็อตการผลิต</li>
+          <li>ระยะเวลาการผลิตและนำเข้าขึ้นอยู่กับประเภทสินค้าและรอบการขนส่ง สามารถสอบถามรอบปิดรับและระยะเวลาโดยประมาณก่อนสั่งผลิตได้ครับ</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h3>📦 รายละเอียดการเคลมสินค้า</h3>
+        <ul>
+          <li>รบกวนถ่ายวิดีโอตั้งแต่เริ่มเปิดกล่องพัสดุแบบต่อเนื่องไม่ตัดต่อ เพื่อใช้เป็นหลักฐานในการเคลมสินค้า</li>
+          <li>รับเคลมกรณีสินค้าผิดแบบ ผิดจำนวน หรือชำรุดเสียหายจากการผลิต/ขนส่งที่ส่งผลต่อการใช้งาน โดยแจ้งภายในวันที่ได้รับสินค้า</li>
+          <li>ขอสงวนสิทธิ์การเคลมกรณีความผิดพลาดเกิดจากไฟล์งานที่ลูกค้าส่งมาเอง หรือไม่มีคลิปวิดีโอตอนเปิดกล่องครับ</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal สินค้า -->
   <div class="modal-overlay" id="productModal">
     <div class="modal-content">
       <div class="modal-img-container">
@@ -602,7 +799,23 @@
     const customDropdownList = document.getElementById("customDropdownList");
     const searchInput = document.getElementById("searchInput");
     const modal = document.getElementById("productModal");
+    const termsModal = document.getElementById("termsModal");
     const toast = document.getElementById("toast");
+
+    document.getElementById("openTermsBtn").onclick = () => {
+      termsModal.classList.add("open");
+      document.body.style.overflow = "hidden";
+    };
+
+    function closeTermsModal() {
+      termsModal.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    document.getElementById("closeTermsBtn").onclick = closeTermsModal;
+    termsModal.onclick = (e) => {
+      if (e.target === termsModal) closeTermsModal();
+    };
 
     function parseCSV(text) {
       const rows = [];
