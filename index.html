@@ -840,7 +840,8 @@
             <span>✉️ แบบฟอร์มส่งไฟล์ในอีเมล</span>
             <button type="button" class="copy-template-btn" id="copyEmailTemplateBtn">คัดลอกข้อความ</button>
           </div>
-          <div class="email-template-text" id="emailTemplateText">รายการสั่งซื้อ : 
+          <div class="email-template-text" id="emailTemplateText">ชื่อแอค : 
+รายการสั่งซื้อ : 
 ขนาด : 
 จำนวน : </div>
         </div>
@@ -869,7 +870,7 @@
 
   <script>
     const LINE_URL = "https://lin.ee/6qFXvvj";
-    const CONTACT_EMAIL = "fpkxrainnn@gmail.com"; // แก้เป็นที่อยู่อีเมลของร้าน
+    const CONTACT_EMAIL = "fpkxrainnn@gmail.com";
     const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSUO16HHpoFGT7jQOkCFe3BN_ZMGN3ILXrvonHRjVFKwtP8Z-k1_maNR6FKhbpnu9VK0VPD9B47fesL/pub?output=csv";
     const EMAIL_ORDER_TEMPLATE = "ชื่อแอค : \nรายการสั่งซื้อ : \nขนาด : \nจำนวน : ";
 
@@ -938,8 +939,13 @@
         const rows = parseCSV(csvText);
         if (rows.length > 1) {
           products = rows.slice(1).map((r, idx) => {
-            const extraImgs = r[7] ? r[7].split(",").map(s => s.trim()).filter(Boolean) : [];
-            const allImgs = [r[6], ...extraImgs].filter(Boolean);
+            const mainCellImgs = r[6]
+              ? r[6].split(/[,|\n]/).map(s => s.trim()).filter(Boolean)
+              : [];
+            const extraImgs = r[7]
+              ? r[7].split(/[,|\n]/).map(s => s.trim()).filter(Boolean)
+              : [];
+            const allImgs = [...mainCellImgs, ...extraImgs];
             return {
               id: r[0] || `ITEM-${idx + 1}`,
               category: r[1] || "ทั่วไป",
