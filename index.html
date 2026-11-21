@@ -485,17 +485,86 @@
       margin-bottom: 6px;
     }
 
+    /* สไลเดอร์รูปหลักเลื่อนซ้าย-ขวา */
     .modal-img-container {
       position: relative;
       width: 100%;
       padding-top: 85%;
       background: #f7f7f7;
+      overflow: hidden;
+      touch-action: pan-y;
+      user-select: none;
     }
 
-    .modal-img-container img {
+    .modal-slider-track {
       position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      transition: transform 0.28s ease;
+    }
+
+    .modal-slide {
+      min-width: 100%;
+      width: 100%;
+      height: 100%;
+      flex-shrink: 0;
+    }
+
+    .modal-slide img {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
+      display: block;
+      -webkit-user-drag: none;
+    }
+
+    .slider-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--brown-dark);
+      border: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 8;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .slider-nav-btn:hover {
+      background: var(--pink-soft);
+    }
+
+    .slider-prev-btn {
+      left: 12px;
+    }
+
+    .slider-next-btn {
+      right: 12px;
+    }
+
+    .slider-counter {
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      background: rgba(146, 115, 108, 0.82);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 12px;
+      z-index: 8;
     }
 
     .modal-close-btn {
@@ -819,9 +888,12 @@
   <!-- Modal สินค้า -->
   <div class="modal-overlay" id="productModal">
     <div class="modal-content">
-      <div class="modal-img-container">
+      <div class="modal-img-container" id="modalImgContainer">
         <button class="modal-close-btn" id="closeModal">&times;</button>
-        <img id="modalMainImg" src="" alt="Product Image">
+        <div class="modal-slider-track" id="modalSliderTrack"></div>
+        <button type="button" class="slider-nav-btn slider-prev-btn" id="prevSlideBtn" aria-label="รูปก่อนหน้า">&lsaquo;</button>
+        <button type="button" class="slider-nav-btn slider-next-btn" id="nextSlideBtn" aria-label="รูปถัดไป">&rsaquo;</button>
+        <div class="slider-counter" id="sliderCounter">1 / 1</div>
       </div>
       <div class="modal-thumbs" id="modalThumbs"></div>
       <div class="modal-body">
@@ -879,6 +951,7 @@
     let activeSubCategory = "ทั้งหมด";
     let searchQuery = "";
     let selectedProduct = null;
+    let currentSlideIndex = 0;
 
     const productGrid = document.getElementById("productGrid");
     const categoryTabs = document.getElementById("categoryTabs");
@@ -890,6 +963,11 @@
     const modal = document.getElementById("productModal");
     const termsModal = document.getElementById("termsModal");
     const toast = document.getElementById("toast");
+    const modalImgContainer = document.getElementById("modalImgContainer");
+    const modalSliderTrack = document.getElementById("modalSliderTrack");
+    const prevSlideBtn = document.getElementById("prevSlideBtn");
+    const nextSlideBtn = document.getElementById("nextSlideBtn");
+    const sliderCounter = document.getElementById("sliderCounter");
 
     function showToast(message) {
       toast.textContent = message;
@@ -1064,15 +1142,87 @@
       }).join("");
     }
 
+    function updateSlidePosition(index) {
+      if (!selectedProduct) return;
+      const total = selectedProduct.images.length;
+      if (index < 0) index = total - 1;
+      if (index >= total) index = 0;
+      currentSlideIndex = index;
+
+      modalSliderTrack.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+      sliderCounter.textContent = `${currentSlideIndex + 1} / ${total}`;
+
+      document.querySelectorAll(".thumb-item").forEach((item, idx) => {
+        item.classList.toggle("active", idx === currentSlideIndex);
+      });
+    }
+
+    prevSlideBtn.onclick = (e) => {
+      e.stopPropagation();
+      updateSlidePosition(currentSlideIndex - 1);
+    };
+
+    nextSlideBtn.onclick = (e) => {
+      e.stopPropagation();
+      updateSlidePosition(currentSlideIndex + 1);
+    };
+
+    let touchStartX = 0;
+    let isDragging = false;
+
+    modalImgContainer.addEventListener("touchstart", (e) => {
+      if (!selectedProduct || selectedProduct.images.length <= 1) return;
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    modalImgContainer.addEventListener("touchend", (e) => {
+      if (!selectedProduct || selectedProduct.images.length <= 1) return;
+      const diffX = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(diffX) > 40) {
+        if (diffX < 0) updateSlidePosition(currentSlideIndex + 1);
+        else updateSlidePosition(currentSlideIndex - 1);
+      }
+    }, { passive: true });
+
+    modalImgContainer.addEventListener("mousedown", (e) => {
+      if (!selectedProduct || selectedProduct.images.length <= 1) return;
+      if (e.target.closest("button")) return;
+      isDragging = true;
+      touchStartX = e.clientX;
+    });
+
+    window.addEventListener("mouseup", (e) => {
+      if (!isDragging || !selectedProduct) return;
+      isDragging = false;
+      const diffX = e.clientX - touchStartX;
+      if (Math.abs(diffX) > 45) {
+        if (diffX < 0) updateSlidePosition(currentSlideIndex + 1);
+        else updateSlidePosition(currentSlideIndex - 1);
+      }
+    });
+
     window.openProductModal = function(id) {
       selectedProduct = products.find(p => p.id === id);
       if (!selectedProduct) return;
+
+      currentSlideIndex = 0;
+      const totalImgs = selectedProduct.images.length;
+
+      modalSliderTrack.innerHTML = selectedProduct.images.map((imgUrl, idx) => `
+        <div class="modal-slide">
+          <img src="${imgUrl}" alt="${selectedProduct.name} ${idx + 1}" />
+        </div>
+      `).join("");
+
+      prevSlideBtn.style.display = totalImgs > 1 ? "flex" : "none";
+      nextSlideBtn.style.display = totalImgs > 1 ? "flex" : "none";
+      sliderCounter.style.display = totalImgs > 1 ? "block" : "none";
+      updateSlidePosition(0);
 
       const catLabel = selectedProduct.subCategory
         ? `${selectedProduct.category} • ${selectedProduct.subCategory}`
         : selectedProduct.category;
 
-      document.getElementById("modalMainImg").src = selectedProduct.images[0];
       document.getElementById("modalCategory").textContent = catLabel;
       document.getElementById("modalStatus").textContent = "";
       document.getElementById("modalTitle").textContent = selectedProduct.name;
@@ -1090,10 +1240,10 @@
       }
 
       const thumbsContainer = document.getElementById("modalThumbs");
-      if (selectedProduct.images.length > 1) {
+      if (totalImgs > 1) {
         thumbsContainer.style.display = "flex";
         thumbsContainer.innerHTML = selectedProduct.images.map((imgUrl, index) => `
-          <div class="thumb-item ${index === 0 ? "active" : ""}" onclick="changeModalImage(this, '${imgUrl}')">
+          <div class="thumb-item ${index === 0 ? "active" : ""}" onclick="changeModalImage(${index})">
             <img src="${imgUrl}" alt="Thumbnail ${index + 1}" />
           </div>
         `).join("");
@@ -1105,10 +1255,8 @@
       document.body.style.overflow = "hidden";
     };
 
-    window.changeModalImage = function(el, url) {
-      document.getElementById("modalMainImg").src = url;
-      document.querySelectorAll(".thumb-item").forEach(item => item.classList.remove("active"));
-      el.classList.add("active");
+    window.changeModalImage = function(index) {
+      updateSlidePosition(index);
     };
 
     function closeProductModal() {
