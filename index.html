@@ -274,7 +274,8 @@
       background: #f7f7f7;
     }
 
-    .img-wrapper img {
+    .img-wrapper img,
+    .img-wrapper video {
       position: absolute;
       top: 0;
       left: 0;
@@ -512,7 +513,7 @@
       margin-bottom: 6px;
     }
 
-    /* สไลเดอร์รูปหลักเลื่อนซ้าย-ขวา */
+    /* สไลเดอร์รูปและวิดีโอเลื่อนซ้าย-ขวา */
     .modal-img-container {
       position: relative;
       width: 100%;
@@ -538,9 +539,11 @@
       width: 100%;
       height: 100%;
       flex-shrink: 0;
+      position: relative;
     }
 
-    .modal-slide img {
+    .modal-slide img,
+    .modal-slide video {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -619,21 +622,36 @@
     }
 
     .thumb-item {
+      position: relative;
       width: 50px; height: 50px;
       border-radius: 8px;
       overflow: hidden;
       border: 2px solid transparent;
       cursor: pointer;
       flex-shrink: 0;
+      background: #f2f2f2;
     }
 
     .thumb-item.active {
       border-color: var(--brown-dark);
     }
 
-    .thumb-item img {
+    .thumb-item img,
+    .thumb-item video {
       width: 100%; height: 100%;
       object-fit: cover;
+    }
+
+    .thumb-video-badge {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
     }
 
     .modal-body {
@@ -999,6 +1017,22 @@
     const nextSlideBtn = document.getElementById("nextSlideBtn");
     const sliderCounter = document.getElementById("sliderCounter");
 
+    function isVideoUrl(url) {
+      if (!url) return false;
+      return /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(url.trim());
+    }
+
+    function renderMediaElement(url, altText, isCard = false) {
+      if (isVideoUrl(url)) {
+        if (isCard) {
+          return `<video src="${url}" autoplay muted loop playsinline preload="metadata"></video>`;
+        }
+        return `<video src="${url}" controls playsinline preload="metadata"></video>`;
+      }
+      const lazyAttr = isCard ? 'loading="lazy"' : '';
+      return `<img src="${url}" alt="${altText}" ${lazyAttr} />`;
+    }
+
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add("show");
@@ -1159,7 +1193,7 @@
         return `
           <article class="product-card" onclick="openProductModal('${p.id}')">
             <div class="img-wrapper">
-              <img src="${p.images[0]}" alt="${p.name}" loading="lazy" />
+              ${renderMediaElement(p.images[0], p.name, true)}
             </div>
             <div class="card-category">${catLabel}</div>
             <h3 class="card-title">${p.name}</h3>
@@ -1172,6 +1206,10 @@
       }).join("");
     }
 
+    function pauseAllSliderVideos() {
+      modalSliderTrack.querySelectorAll("video").forEach(v => v.pause());
+    }
+
     function updateSlidePosition(index) {
       if (!selectedProduct) return;
       const total = selectedProduct.images.length;
@@ -1179,6 +1217,7 @@
       if (index >= total) index = 0;
       currentSlideIndex = index;
 
+      pauseAllSliderVideos();
       modalSliderTrack.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
       sliderCounter.textContent = `${currentSlideIndex + 1} / ${total}`;
 
@@ -1216,7 +1255,7 @@
 
     modalImgContainer.addEventListener("mousedown", (e) => {
       if (!selectedProduct || selectedProduct.images.length <= 1) return;
-      if (e.target.closest("button")) return;
+      if (e.target.closest("button, video")) return;
       isDragging = true;
       touchStartX = e.clientX;
     });
@@ -1240,7 +1279,7 @@
 
       modalSliderTrack.innerHTML = selectedProduct.images.map((imgUrl, idx) => `
         <div class="modal-slide">
-          <img src="${imgUrl}" alt="${selectedProduct.name} ${idx + 1}" />
+          ${renderMediaElement(imgUrl, `${selectedProduct.name} ${idx + 1}`, false)}
         </div>
       `).join("");
 
@@ -1272,11 +1311,17 @@
       const thumbsContainer = document.getElementById("modalThumbs");
       if (totalImgs > 1) {
         thumbsContainer.style.display = "flex";
-        thumbsContainer.innerHTML = selectedProduct.images.map((imgUrl, index) => `
-          <div class="thumb-item ${index === 0 ? "active" : ""}" onclick="changeModalImage(${index})">
-            <img src="${imgUrl}" alt="Thumbnail ${index + 1}" />
-          </div>
-        `).join("");
+        thumbsContainer.innerHTML = selectedProduct.images.map((imgUrl, index) => {
+          const isVid = isVideoUrl(imgUrl);
+          return `
+            <div class="thumb-item ${index === 0 ? "active" : ""}" onclick="changeModalImage(${index})">
+              ${isVid
+                ? `<video src="${imgUrl}" muted playsinline preload="metadata"></video><span class="thumb-video-badge">▶</span>`
+                : `<img src="${imgUrl}" alt="Thumbnail ${index + 1}" />`
+              }
+            </div>
+          `;
+        }).join("");
       } else {
         thumbsContainer.style.display = "none";
       }
@@ -1290,6 +1335,7 @@
     };
 
     function closeProductModal() {
+      pauseAllSliderVideos();
       modal.classList.remove("open");
       document.body.style.overflow = "";
     }
