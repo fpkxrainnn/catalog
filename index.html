@@ -117,6 +117,27 @@
       background: var(--pink-soft);
     }
 
+    /* กรอบข้อความแจ้งเตือนหน้าหลัก */
+    .notice-box-wrap {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .no-cancel-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--desc-bg);
+      color: var(--brown-dark);
+      border: 1px solid var(--pink-accent);
+      padding: 7px 18px;
+      border-radius: 16px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+
     .category-tabs {
       display: flex;
       gap: 8px;
@@ -340,6 +361,12 @@
       .terms-btn {
         padding: 6px 14px;
         font-size: 0.78rem;
+      }
+
+      .no-cancel-box {
+        padding: 6px 14px;
+        font-size: 0.76rem;
+        border-radius: 14px;
       }
 
       .tab-btn {
@@ -843,6 +870,9 @@
     <input type="text" id="searchInput" class="search-bar" placeholder="🔍 ค้นหาชื่อสินค้า หมวดหมู่ หรือรายละเอียด...">
     <div class="terms-trigger-wrap">
       <button type="button" class="terms-btn" id="openTermsBtn">📜 เงื่อนไขการผลิตและเคลมสินค้า</button>
+    </div>
+    <div class="notice-box-wrap">
+      <div class="no-cancel-box">สั่งแล้วยกเลิกไม่ได้ทุกกรณี</div>
     </div>
   </header>
 
